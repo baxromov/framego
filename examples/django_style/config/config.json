@@ -1,0 +1,20 @@
+{
+  "database": {
+    "driver": "sqlite3",
+    "host": "localhost",
+    "port": 3306,
+    "user": "root",
+    "password": "",
+    "database": "django_style.db"
+  },
+  "server": {
+    "host": "localhost",
+    "port": 8080
+  },
+  "debug": true,
+  "secret_key": "your-secret-key-here",
+  "graphql": {
+    "enabled": true,
+    "path": "/graphql"
+  }
+}
