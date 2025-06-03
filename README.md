@@ -46,7 +46,7 @@ FrameGo is a lightweight web framework for Go, inspired by Django's REST framewo
 ## Installation
 
 ```bash
-go get github.com/yourusername/framego
+go get github.com/baxromov/framego
 ```
 
 ## Quick Start
