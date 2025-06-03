@@ -2,9 +2,29 @@
   "database": {
     "driver": "sqlite3",
     "host": "localhost",
-
     "database": "django_style.db"
   },
+
+  "_comment_database_postgres": "PostgreSQL configuration example",
+  "_postgres_example": {
+    "driver": "postgres",
+    "host": "localhost",
+    "port": 5432,
+    "user": "postgres",
+    "password": "postgres",
+    "database": "django_style"
+  },
+
+  "_comment_database_mysql": "MySQL configuration example",
+  "_mysql_example": {
+    "driver": "mysql",
+    "host": "localhost",
+    "port": 3306,
+    "user": "root",
+    "password": "root",
+    "database": "django_style"
+  },
+
   "server": {
     "host": "localhost",
     "port": 8080

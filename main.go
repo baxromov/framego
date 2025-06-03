@@ -13,6 +13,11 @@ import (
 	"github.com/baxromov/framego/pkg/orm"
 	"github.com/baxromov/framego/pkg/router"
 	"github.com/baxromov/framego/pkg/serializer"
+
+	// Import database drivers
+	_ "github.com/go-sql-driver/mysql" // MySQL driver
+	_ "github.com/lib/pq"              // PostgreSQL driver
+	
 )
 
 // User represents a user model

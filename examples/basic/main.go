@@ -7,6 +7,11 @@ import (
 	"reflect"
 	"time"
 
+	// Import database drivers
+	_ "github.com/go-sql-driver/mysql" // MySQL driver
+	_ "github.com/lib/pq"              // PostgreSQL driver
+
+
 	"github.com/baxromov/framego/pkg/api"
 	"github.com/baxromov/framego/pkg/config"
 	"github.com/baxromov/framego/pkg/graphql"

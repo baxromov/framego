@@ -5,7 +5,10 @@ import (
 	"log"
 	"net/http"
 
-	_ "github.com/mattn/go-sqlite3" // Import SQLite3 driver
+	// Import database drivers
+	_ "github.com/go-sql-driver/mysql" // MySQL driver
+	_ "github.com/lib/pq"              // PostgreSQL driver
+
 
 	"github.com/baxromov/framego/examples/django_style/internal/orders"
 	"github.com/baxromov/framego/examples/django_style/internal/products"
