@@ -7,14 +7,14 @@ import (
 	"reflect"
 	"time"
 
-	"framego/pkg/api"
-	"framego/pkg/config"
-	"framego/pkg/graphql"
-	"framego/pkg/middleware"
-	"framego/pkg/models"
-	"framego/pkg/orm"
-	"framego/pkg/router"
-	"framego/pkg/serializer"
+	"github.com/baxromov/framego/pkg/api"
+	"github.com/baxromov/framego/pkg/config"
+	"github.com/baxromov/framego/pkg/graphql"
+	"github.com/baxromov/framego/pkg/middleware"
+	"github.com/baxromov/framego/pkg/models"
+	"github.com/baxromov/framego/pkg/orm"
+	"github.com/baxromov/framego/pkg/router"
+	"github.com/baxromov/framego/pkg/serializer"
 )
 
 // User represents a user model
