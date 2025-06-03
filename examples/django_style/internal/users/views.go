@@ -1,10 +1,10 @@
 package users
 
 import (
-	"framego/pkg/api"
-	"framego/pkg/middleware"
-	"framego/pkg/orm"
-	"framego/pkg/router"
+	"github.com/baxromov/framego/pkg/api"
+	"github.com/baxromov/framego/pkg/middleware"
+	"github.com/baxromov/framego/pkg/orm"
+	"github.com/baxromov/framego/pkg/router"
 )
 
 // SetupUserAPI sets up the user API routes

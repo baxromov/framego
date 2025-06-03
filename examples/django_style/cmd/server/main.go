@@ -5,14 +5,16 @@ import (
 	"log"
 	"net/http"
 
-	"framego/examples/django_style/internal/orders"
-	"framego/examples/django_style/internal/products"
-	"framego/examples/django_style/internal/users"
-	"framego/pkg/config"
-	"framego/pkg/graphql"
-	"framego/pkg/middleware"
-	"framego/pkg/orm"
-	"framego/pkg/router"
+	_ "github.com/mattn/go-sqlite3" // Import SQLite3 driver
+
+	"github.com/baxromov/framego/examples/django_style/internal/orders"
+	"github.com/baxromov/framego/examples/django_style/internal/products"
+	"github.com/baxromov/framego/examples/django_style/internal/users"
+	"github.com/baxromov/framego/pkg/config"
+	"github.com/baxromov/framego/pkg/graphql"
+	"github.com/baxromov/framego/pkg/middleware"
+	"github.com/baxromov/framego/pkg/orm"
+	"github.com/baxromov/framego/pkg/router"
 )
 
 func main() {
@@ -98,8 +100,9 @@ func main() {
 			fmt.Println("Order item model registered with GraphQL")
 		}
 
-		// Register GraphQL handler
-		http.Handle(cfg.GraphQL.Path, graphqlHandler)
+		// Register GraphQL handler with the router for both POST and GET requests
+		r.Handle("POST", cfg.GraphQL.Path, http.HandlerFunc(graphqlHandler.ServeHTTP))
+		r.Handle("GET", cfg.GraphQL.Path, http.HandlerFunc(graphqlHandler.ServeHTTP))
 
 		log.Printf("GraphQL endpoint available at http://%s:%d%s", cfg.Server.Host, cfg.Server.Port, cfg.GraphQL.Path)
 	}

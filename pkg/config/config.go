@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"framego/pkg/orm"
+	"github.com/baxromov/framego/pkg/orm"
 )
 
 // Config represents the application configuration

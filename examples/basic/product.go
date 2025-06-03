@@ -6,13 +6,13 @@ import (
 	"reflect"
 	"time"
 
-	"framego/pkg/api"
-	"framego/pkg/graphql"
-	"framego/pkg/middleware"
-	"framego/pkg/models"
-	"framego/pkg/orm"
-	"framego/pkg/router"
-	"framego/pkg/serializer"
+	"github.com/baxromov/framego/pkg/api"
+	"github.com/baxromov/framego/pkg/graphql"
+	"github.com/baxromov/framego/pkg/middleware"
+	"github.com/baxromov/framego/pkg/models"
+	"github.com/baxromov/framego/pkg/orm"
+	"github.com/baxromov/framego/pkg/router"
+	"github.com/baxromov/framego/pkg/serializer"
 )
 
 // Product represents a product model
@@ -50,11 +50,11 @@ func setupProductAPI(orm *orm.ORM, r *router.Router, graphqlHandler *graphql.Han
 	productSerializer := serializer.New(productModel)
 
 	// Add price validator (must be positive)
-	productSerializer.AddField("price", reflect.TypeOf(0.0), 
+	productSerializer.AddField("price", reflect.TypeOf(0.0),
 		serializer.WithValidator(serializer.RangeValidator(0.01, 1000000.0)))
 
 	// Add stock validator (must be non-negative)
-	productSerializer.AddField("stock", reflect.TypeOf(0), 
+	productSerializer.AddField("stock", reflect.TypeOf(0),
 		serializer.WithValidator(serializer.RangeValidator(0, 1000000)))
 
 	// Set the custom serializer for the controller

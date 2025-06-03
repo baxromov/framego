@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"time"
 
-	"framego/pkg/models"
+	"github.com/baxromov/framego/pkg/models"
 )
 
 // User represents a user model
@@ -27,6 +27,6 @@ func CreateUserModel() *models.Model {
 	userModel.AddField("password", reflect.TypeOf(""), models.WithNotNull(), models.WithMaxLength(100))
 	userModel.AddField("created_at", reflect.TypeOf(time.Time{}), models.WithNotNull(), models.WithDefault(time.Now()))
 	userModel.AddField("updated_at", reflect.TypeOf(time.Time{}), models.WithNotNull(), models.WithDefault(time.Now()))
-	
+
 	return userModel
 }

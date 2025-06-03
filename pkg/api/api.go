@@ -7,8 +7,8 @@ import (
 	"reflect"
 	"strings"
 
-	"framego/pkg/models"
-	"framego/pkg/orm"
+	"github.com/baxromov/framego/pkg/models"
+	"github.com/baxromov/framego/pkg/orm"
 )
 
 // Controller represents a REST API controller

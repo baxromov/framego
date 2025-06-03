@@ -6,13 +6,13 @@ import (
 	"reflect"
 	"time"
 
-	"framego/pkg/api"
-	"framego/pkg/graphql"
-	"framego/pkg/middleware"
-	"framego/pkg/models"
-	"framego/pkg/orm"
-	"framego/pkg/router"
-	"framego/pkg/serializer"
+	"github.com/baxromov/framego/pkg/api"
+	"github.com/baxromov/framego/pkg/graphql"
+	"github.com/baxromov/framego/pkg/middleware"
+	"github.com/baxromov/framego/pkg/models"
+	"github.com/baxromov/framego/pkg/orm"
+	"github.com/baxromov/framego/pkg/router"
+	"github.com/baxromov/framego/pkg/serializer"
 )
 
 // Order represents an order model
@@ -42,7 +42,7 @@ func setupOrderAPI(orm *orm.ORM, r *router.Router, graphqlHandler *graphql.Handl
 	// Create order model
 	orderModel := models.NewModel("orders")
 	orderModel.AddField("id", reflect.TypeOf(0), models.WithPrimaryKey(), models.WithAutoIncrement())
-	orderModel.AddField("user_id", reflect.TypeOf(0), models.WithNotNull(), 
+	orderModel.AddField("user_id", reflect.TypeOf(0), models.WithNotNull(),
 		models.WithForeignKey("users", "id", "CASCADE", "CASCADE"))
 	orderModel.AddField("total_price", reflect.TypeOf(0.0), models.WithNotNull())
 	orderModel.AddField("status", reflect.TypeOf(""), models.WithNotNull(), models.WithDefault("pending"))
@@ -52,9 +52,9 @@ func setupOrderAPI(orm *orm.ORM, r *router.Router, graphqlHandler *graphql.Handl
 	// Create order item model
 	orderItemModel := models.NewModel("order_items")
 	orderItemModel.AddField("id", reflect.TypeOf(0), models.WithPrimaryKey(), models.WithAutoIncrement())
-	orderItemModel.AddField("order_id", reflect.TypeOf(0), models.WithNotNull(), 
+	orderItemModel.AddField("order_id", reflect.TypeOf(0), models.WithNotNull(),
 		models.WithForeignKey("orders", "id", "CASCADE", "CASCADE"))
-	orderItemModel.AddField("product_id", reflect.TypeOf(0), models.WithNotNull(), 
+	orderItemModel.AddField("product_id", reflect.TypeOf(0), models.WithNotNull(),
 		models.WithForeignKey("products", "id", "RESTRICT", "CASCADE"))
 	orderItemModel.AddField("quantity", reflect.TypeOf(0), models.WithNotNull())
 	orderItemModel.AddField("price", reflect.TypeOf(0.0), models.WithNotNull())
@@ -72,7 +72,7 @@ func setupOrderAPI(orm *orm.ORM, r *router.Router, graphqlHandler *graphql.Handl
 	// Create order controller
 	orderController := api.NewController(orm, orderModel, "/api/orders")
 	orderSerializer := serializer.New(orderModel)
-	orderSerializer.AddField("status", reflect.TypeOf(""), 
+	orderSerializer.AddField("status", reflect.TypeOf(""),
 		serializer.WithValidator(func(value interface{}) error {
 			status, ok := value.(string)
 			if !ok {
@@ -91,7 +91,7 @@ func setupOrderAPI(orm *orm.ORM, r *router.Router, graphqlHandler *graphql.Handl
 	// Create order item controller
 	orderItemController := api.NewController(orm, orderItemModel, "/api/order-items")
 	orderItemSerializer := serializer.New(orderItemModel)
-	orderItemSerializer.AddField("quantity", reflect.TypeOf(0), 
+	orderItemSerializer.AddField("quantity", reflect.TypeOf(0),
 		serializer.WithValidator(serializer.RangeValidator(1, 100)))
 	orderItemController.SetSerializer(orderItemSerializer)
 

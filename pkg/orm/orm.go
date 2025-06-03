@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"framego/pkg/models"
+	"github.com/baxromov/framego/pkg/models"
 )
 
 // ORM represents the object-relational mapper
@@ -39,6 +39,13 @@ func New(config Config) (*ORM, error) {
 	// Test the connection
 	if err := db.Ping(); err != nil {
 		return nil, fmt.Errorf("failed to ping database: %w", err)
+	}
+
+	// Enable foreign keys for SQLite3
+	if config.Driver == "sqlite3" {
+		if _, err := db.Exec("PRAGMA foreign_keys = ON"); err != nil {
+			return nil, fmt.Errorf("failed to enable foreign keys: %w", err)
+		}
 	}
 
 	return &ORM{
@@ -114,7 +121,18 @@ func (o *ORM) createTable(model models.ModelInterface) error {
 		}
 
 		if field.Default != nil {
-			column += fmt.Sprintf(" DEFAULT %v", field.Default)
+			// Handle default values for different types
+			switch field.Type.Kind() {
+			case reflect.String:
+				column += fmt.Sprintf(" DEFAULT '%v'", field.Default)
+			default:
+				// Handle time.Time specially for SQLite3
+				if field.Type == reflect.TypeOf(time.Time{}) && o.driver == "sqlite3" {
+					column += " DEFAULT CURRENT_TIMESTAMP"
+				} else {
+					column += fmt.Sprintf(" DEFAULT %v", field.Default)
+				}
+			}
 		}
 
 		if field.PrimaryKey {
@@ -132,11 +150,21 @@ func (o *ORM) createTable(model models.ModelInterface) error {
 				name, field.ForeignKey.Model, field.ForeignKey.Field)
 
 			if field.ForeignKey.OnDelete != "" {
-				fk += fmt.Sprintf(" ON DELETE %s", field.ForeignKey.OnDelete)
+				// Handle SQLite3 specific syntax for ON DELETE
+				if o.driver == "sqlite3" {
+					fk += fmt.Sprintf(" ON DELETE %s", strings.Replace(field.ForeignKey.OnDelete, "-", " ", -1))
+				} else {
+					fk += fmt.Sprintf(" ON DELETE %s", field.ForeignKey.OnDelete)
+				}
 			}
 
 			if field.ForeignKey.OnUpdate != "" {
-				fk += fmt.Sprintf(" ON UPDATE %s", field.ForeignKey.OnUpdate)
+				// Handle SQLite3 specific syntax for ON UPDATE
+				if o.driver == "sqlite3" {
+					fk += fmt.Sprintf(" ON UPDATE %s", strings.Replace(field.ForeignKey.OnUpdate, "-", " ", -1))
+				} else {
+					fk += fmt.Sprintf(" ON UPDATE %s", field.ForeignKey.OnUpdate)
+				}
 			}
 
 			foreignKeys = append(foreignKeys, fk)

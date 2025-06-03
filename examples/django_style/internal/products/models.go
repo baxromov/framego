@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"time"
 
-	"framego/pkg/models"
+	"github.com/baxromov/framego/pkg/models"
 )
 
 // Product represents a product model
@@ -29,6 +29,6 @@ func CreateProductModel() *models.Model {
 	productModel.AddField("stock", reflect.TypeOf(0), models.WithNotNull(), models.WithDefault(0))
 	productModel.AddField("created_at", reflect.TypeOf(time.Time{}), models.WithNotNull(), models.WithDefault(time.Now()))
 	productModel.AddField("updated_at", reflect.TypeOf(time.Time{}), models.WithNotNull(), models.WithDefault(time.Now()))
-	
+
 	return productModel
 }

@@ -9,8 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"framego/pkg/models"
-	"framego/pkg/orm"
+	"github.com/baxromov/framego/pkg/models"
+	"github.com/baxromov/framego/pkg/orm"
+	"github.com/graphql-go/graphql"
 )
 
 // Handler represents a GraphQL handler
@@ -18,12 +19,14 @@ type Handler struct {
 	ORM    *orm.ORM
 	Models map[string]models.ModelInterface
 	Schema *Schema
+	// graphql-go schema
+	GQLSchema graphql.Schema
 }
 
 // Schema represents a GraphQL schema
 type Schema struct {
-	Types       map[string]*Type
-	QueryType   *Type
+	Types        map[string]*Type
+	QueryType    *Type
 	MutationType *Type
 }
 
@@ -46,9 +49,9 @@ type Field struct {
 
 // Argument represents a GraphQL argument
 type Argument struct {
-	Name        string
-	Description string
-	Type        string
+	Name         string
+	Description  string
+	Type         string
 	DefaultValue interface{}
 }
 
@@ -57,15 +60,52 @@ type ResolveFunc func(ctx context.Context, source interface{}, args map[string]i
 
 // New creates a new GraphQL handler
 func New(orm *orm.ORM) *Handler {
-	return &Handler{
+	// Create a new handler
+	handler := &Handler{
 		ORM:    orm,
 		Models: make(map[string]models.ModelInterface),
 		Schema: &Schema{
-			Types:       make(map[string]*Type),
-			QueryType:   &Type{Name: "Query", Fields: make(map[string]*Field)},
+			Types:        make(map[string]*Type),
+			QueryType:    &Type{Name: "Query", Fields: make(map[string]*Field)},
 			MutationType: &Type{Name: "Mutation", Fields: make(map[string]*Field)},
 		},
 	}
+
+	// Initialize graphql-go schema with empty query and mutation types
+	queryFields := graphql.Fields{
+		"hello": &graphql.Field{
+			Type: graphql.String,
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				return "world", nil
+			},
+		},
+	}
+	mutationFields := graphql.Fields{}
+
+	queryType := graphql.NewObject(graphql.ObjectConfig{
+		Name:   "Query",
+		Fields: queryFields,
+	})
+
+	mutationType := graphql.NewObject(graphql.ObjectConfig{
+		Name:   "Mutation",
+		Fields: mutationFields,
+	})
+
+	schemaConfig := graphql.SchemaConfig{
+		Query:    queryType,
+		Mutation: mutationType,
+	}
+
+	schema, err := graphql.NewSchema(schemaConfig)
+	if err != nil {
+		// Log the error but continue
+		fmt.Printf("Error creating GraphQL schema: %v\n", err)
+	}
+
+	handler.GQLSchema = schema
+
+	return handler
 }
 
 // RegisterModel registers a model with the GraphQL handler
@@ -258,24 +298,40 @@ func getGraphQLType(t reflect.Type) string {
 
 // ServeHTTP implements the http.Handler interface
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// Only accept POST requests
-	if r.Method != http.MethodPost {
+	// Accept both POST and GET requests
+	var query string
+	var variables map[string]interface{}
+
+	switch r.Method {
+	case http.MethodPost:
+		// Parse POST request body
+		var request struct {
+			Query     string                 `json:"query"`
+			Variables map[string]interface{} `json:"variables"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		query = request.Query
+		variables = request.Variables
+	case http.MethodGet:
+		// Parse GET request query parameters
+		query = r.URL.Query().Get("query")
+		variablesStr := r.URL.Query().Get("variables")
+		if variablesStr != "" {
+			if err := json.Unmarshal([]byte(variablesStr), &variables); err != nil {
+				http.Error(w, "Invalid variables", http.StatusBadRequest)
+				return
+			}
+		}
+	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// Parse request
-	var request struct {
-		Query     string                 `json:"query"`
-		Variables map[string]interface{} `json:"variables"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
 	// Execute query
-	result, err := h.ExecuteQuery(request.Query, request.Variables)
+	result, err := h.ExecuteQuery(query, variables)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -288,12 +344,16 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // ExecuteQuery executes a GraphQL query
 func (h *Handler) ExecuteQuery(query string, variables map[string]interface{}) (interface{}, error) {
-	// This is a simplified implementation
-	// In a real-world scenario, you would use a proper GraphQL library
-	// to parse and execute the query
-	return map[string]interface{}{
-		"data": map[string]interface{}{
-			"hello": "world",
-		},
-	}, nil
+	// Use graphql-go to execute the query
+	params := graphql.Params{
+		Schema:         h.GQLSchema,
+		RequestString:  query,
+		VariableValues: variables,
+		Context:        context.Background(),
+	}
+	result := graphql.Do(params)
+	if len(result.Errors) > 0 {
+		return nil, fmt.Errorf("errors: %+v", result.Errors)
+	}
+	return result, nil
 }

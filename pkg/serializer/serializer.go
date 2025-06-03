@@ -6,19 +6,19 @@ import (
 	"strings"
 	"time"
 
-	"framego/pkg/models"
+	"github.com/baxromov/framego/pkg/models"
 )
 
 // Field represents a serializer field
 type Field struct {
-	Name         string
-	Type         reflect.Type
-	Required     bool
-	ReadOnly     bool
-	WriteOnly    bool
-	Default      interface{}
-	Validators   []Validator
-	SourceField  string
+	Name          string
+	Type          reflect.Type
+	Required      bool
+	ReadOnly      bool
+	WriteOnly     bool
+	Default       interface{}
+	Validators    []Validator
+	SourceField   string
 	ErrorMessages map[string]string
 }
 
